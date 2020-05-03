@@ -21,7 +21,7 @@
     "std": "standard src/*.js",
     "stdfix": "standard src/*.js --fix",
     "clean": "rimraf dist",
-    "build": "babel ./src  --out-dir ./lib && cp src/react-datasheet.css lib",
+    "build": "babel ./src  --out-dir ./lib && copy .\\src\\react-datasheet.css .\\lib && copy .\\lib\\ C:\\Workspace\\debug-datasheet\\node_modules\\react-datasheet\\lib",
     "build:watch": "watch 'npm run build' ./src",
     "prepublish": "npm run build",
     "coverage": "nyc report --reporter=text-lcov | coveralls",

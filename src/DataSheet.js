@@ -9,6 +9,8 @@ import ValueViewer from './ValueViewer'
 import { TAB_KEY, ENTER_KEY, DELETE_KEY, ESCAPE_KEY, BACKSPACE_KEY,
   LEFT_KEY, UP_KEY, DOWN_KEY, RIGHT_KEY } from './keys'
 
+import InternalRowRenderer from './InternalRowRenderer';
+
 const isEmpty = (obj) => Object.keys(obj).length === 0
 
 const range = (start, end) => {
@@ -548,12 +550,28 @@ export default class DataSheet extends PureComponent {
       (posX && negY)
   }
 
+  isRowSelected (i) {
+    const {start, end} = this.getState()
+    const posY = (i >= start.i && i <= end.i)
+    const negY = (i <= start.i && i >= end.i)
+
+    return  posY || negY
+  }
+
   isEditing (i, j) {
     return this.state.editing.i === i && this.state.editing.j === j
   }
 
+  isEditingRow (i) {
+    return this.state.editing.i === i
+  }
+
   isClearing (i, j) {
     return this.state.clear.i === i && this.state.clear.j === j
+  }
+
+  isClearingRow (i) {
+    return this.state.clear.i === i
   }
 
   render () {
@@ -561,50 +579,83 @@ export default class DataSheet extends PureComponent {
       dataRenderer, valueRenderer, dataEditor, valueViewer, attributesRenderer,
       className, overflow, data, keyFn} = this.props
     const {forceEdit} = this.state
+    const {start, end} = this.getState()
 
     return (
       <span ref={r => { this.dgDom = r }} tabIndex='0' className='data-grid-container' onKeyDown={this.handleKey}>
         <SheetRenderer data={data} className={['data-grid', className, overflow].filter(a => a).join(' ')}>
           {data.map((row, i) =>
-            <RowRenderer key={keyFn ? keyFn(i) : i} row={i} cells={row}>
-              {
-                row.map((cell, j) => {
-                  const isEditing = this.isEditing(i, j)
-                  return (
-                    <DataCell
-                      key={cell.key ? cell.key : `${i}-${j}`}
-                      row={i}
-                      col={j}
-                      cell={cell}
-                      forceEdit={forceEdit}
-                      onMouseDown={this.onMouseDown}
-                      onMouseOver={this.onMouseOver}
-                      onDoubleClick={this.onDoubleClick}
-                      onContextMenu={this.onContextMenu}
-                      onChange={this.onChange}
-                      onRevert={this.onRevert}
-                      onNavigate={this.handleKeyboardCellMovement}
-                      onKey={this.handleKey}
-                      selected={this.isSelected(i, j)}
-                      editing={isEditing}
-                      clearing={this.isClearing(i, j)}
-                      attributesRenderer={attributesRenderer}
-                      cellRenderer={cellRenderer}
-                      valueRenderer={valueRenderer}
-                      dataRenderer={dataRenderer}
-                      valueViewer={valueViewer}
-                      dataEditor={dataEditor}
-                      editValue={this.state.editValue}
-                      {... isEditing ? {
-                        onEdit: this.handleEdit
-                      }
-                        : {}
-                      }
-                    />
-                  )
-                })
-              }
-            </RowRenderer>)
+            // <RowRenderer key={keyFn ? keyFn(i) : i} row={i} cells={row}>
+              <InternalRowRenderer 
+                key={keyFn ? keyFn(i) : i} 
+                row={i}
+                cells={row}
+                forceEdit={forceEdit}
+                editValue={this.isEditingRow(i) ? this.state.editValue : undefined}
+                onMouseDown={this.onMouseDown}
+                onMouseOver={this.onMouseOver}
+                onDoubleClick={this.onDoubleClick}
+                onContextMenu={this.onContextMenu}
+                onChange={this.onChange}
+                onRevert={this.onRevert}
+                handleKeyboardCellMovement={this.handleKeyboardCellMovement}
+                handleKey={this.handleKey}
+                handleEdit={this.handleEdit}
+                attributesRenderer={attributesRenderer}
+                cellRenderer={cellRenderer}
+                valueRenderer={valueRenderer}
+                dataRenderer={dataRenderer}
+                valueViewer={valueViewer}
+                dataEditor={dataEditor}
+                editI={this.isEditingRow(i) ? this.state.editing.i : undefined}
+                editJ={this.isEditingRow(i) ? this.state.editing.j : undefined}
+                clearingI={this.isClearingRow(i) ? this.state.clear.i : undefined}
+                clearingJ={this.isClearingRow(i) ? this.state.clear.j : undefined}
+                startI={this.isRowSelected(i) ? start.i : undefined}
+                startJ={this.isRowSelected(i) ? start.j : undefined}
+                endI={this.isRowSelected(i) ? end.i : undefined}
+                endJ={this.isRowSelected(i) ? end.j : undefined}
+                rowRenderer={RowRenderer}
+              />
+            //   // {/* {
+            //   //   row.map((cell, j) => {
+            //   //     const isEditing = this.isEditing(i, j)
+            //   //     return (
+            //   //       <DataCell
+            //   //         key={cell.key ? cell.key : `${i}-${j}`}
+            //   //         row={i}
+            //   //         col={j}
+            //   //         cell={cell}
+            //   //         forceEdit={forceEdit}
+            //   //         onMouseDown={this.onMouseDown}
+            //   //         onMouseOver={this.onMouseOver}
+            //   //         onDoubleClick={this.onDoubleClick}
+            //   //         onContextMenu={this.onContextMenu}
+            //   //         onChange={this.onChange}
+            //   //         onRevert={this.onRevert}
+            //   //         onNavigate={this.handleKeyboardCellMovement}
+            //   //         onKey={this.handleKey}
+            //   //         selected={this.isSelected(i, j)}
+            //   //         editing={isEditing}
+            //   //         clearing={this.isClearing(i, j)}
+            //   //         attributesRenderer={attributesRenderer}
+            //   //         cellRenderer={cellRenderer}
+            //   //         valueRenderer={valueRenderer}
+            //   //         dataRenderer={dataRenderer}
+            //   //         valueViewer={valueViewer}
+            //   //         dataEditor={dataEditor}
+            //   //         editValue={this.state.editValue}
+            //   //         {... isEditing ? {
+            //   //           onEdit: this.handleEdit
+            //   //         }
+            //   //           : {}
+            //   //         }
+            //   //       />
+            //   //     )
+            //   //   })
+            //   // } */}
+            // </RowRenderer>
+            )
           }
         </SheetRenderer>
       </span>
