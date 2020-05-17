@@ -577,7 +577,7 @@ export default class DataSheet extends PureComponent {
   render () {
     const {sheetRenderer: SheetRenderer, rowRenderer: RowRenderer, cellRenderer,
       dataRenderer, valueRenderer, dataEditor, valueViewer, attributesRenderer,
-      className, overflow, data, keyFn} = this.props
+      className, overflow, data, keyFn, equalityFn} = this.props
     const {forceEdit} = this.state
     const {start, end} = this.getState()
 
@@ -585,7 +585,6 @@ export default class DataSheet extends PureComponent {
       <span ref={r => { this.dgDom = r }} tabIndex='0' className='data-grid-container' onKeyDown={this.handleKey}>
         <SheetRenderer data={data} className={['data-grid', className, overflow].filter(a => a).join(' ')}>
           {data.map((row, i) =>
-            // <RowRenderer key={keyFn ? keyFn(i) : i} row={i} cells={row}>
               <InternalRowRenderer 
                 key={keyFn ? keyFn(i) : i} 
                 row={i}
@@ -616,45 +615,8 @@ export default class DataSheet extends PureComponent {
                 endI={this.isRowSelected(i) ? end.i : undefined}
                 endJ={this.isRowSelected(i) ? end.j : undefined}
                 rowRenderer={RowRenderer}
+                equalityFn={equalityFn}
               />
-            //   // {/* {
-            //   //   row.map((cell, j) => {
-            //   //     const isEditing = this.isEditing(i, j)
-            //   //     return (
-            //   //       <DataCell
-            //   //         key={cell.key ? cell.key : `${i}-${j}`}
-            //   //         row={i}
-            //   //         col={j}
-            //   //         cell={cell}
-            //   //         forceEdit={forceEdit}
-            //   //         onMouseDown={this.onMouseDown}
-            //   //         onMouseOver={this.onMouseOver}
-            //   //         onDoubleClick={this.onDoubleClick}
-            //   //         onContextMenu={this.onContextMenu}
-            //   //         onChange={this.onChange}
-            //   //         onRevert={this.onRevert}
-            //   //         onNavigate={this.handleKeyboardCellMovement}
-            //   //         onKey={this.handleKey}
-            //   //         selected={this.isSelected(i, j)}
-            //   //         editing={isEditing}
-            //   //         clearing={this.isClearing(i, j)}
-            //   //         attributesRenderer={attributesRenderer}
-            //   //         cellRenderer={cellRenderer}
-            //   //         valueRenderer={valueRenderer}
-            //   //         dataRenderer={dataRenderer}
-            //   //         valueViewer={valueViewer}
-            //   //         dataEditor={dataEditor}
-            //   //         editValue={this.state.editValue}
-            //   //         {... isEditing ? {
-            //   //           onEdit: this.handleEdit
-            //   //         }
-            //   //           : {}
-            //   //         }
-            //   //       />
-            //   //     )
-            //   //   })
-            //   // } */}
-            // </RowRenderer>
             )
           }
         </SheetRenderer>
@@ -690,6 +652,7 @@ DataSheet.propTypes = {
   valueViewer: PropTypes.func,
   dataEditor: PropTypes.func,
   parsePaste: PropTypes.func,
+  equalityFn: PropTypes.func,
   attributesRenderer: PropTypes.func,
   keyFn: PropTypes.func
 }
